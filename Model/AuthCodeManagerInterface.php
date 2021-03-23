@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -33,8 +35,7 @@ interface AuthCodeManagerInterface
     /**
      * Retrieve an auth code using a set of criteria.
      *
-     * @param array $criteria
-     * @param AuthCodeInterface|null
+     * @return AuthCodeInterface|null
      */
     public function findAuthCodeBy(array $criteria);
 
@@ -42,28 +43,25 @@ interface AuthCodeManagerInterface
      * Retrieve an auth code by its token.
      *
      * @param string $token
-     * @param AuthCodeInterface|null
+     *
+     * @return AuthCodeInterface|null
      */
     public function findAuthCodeByToken($token);
 
     /**
      * Update a given auth code.
-     *
-     * @param AuthCodeInterface $authCode
      */
     public function updateAuthCode(AuthCodeInterface $authCode);
 
     /**
      * Delete a given auth code.
-     *
-     * @param AuthCodeInterface $authCode
      */
     public function deleteAuthCode(AuthCodeInterface $authCode);
 
     /**
      * Delete expired auth codes.
      *
-     * @return int The number of auth codes deleted.
+     * @return int the number of auth codes deleted
      */
     public function deleteExpired();
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -13,8 +15,8 @@ namespace FOS\OAuthServerBundle\DependencyInjection\Security\Factory;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ChildDefinition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -33,12 +35,13 @@ class OAuthFactory implements SecurityFactoryInterface
         $container
             ->setDefinition($providerId, new ChildDefinition('fos_oauth_server.security.authentication.provider'))
             ->replaceArgument(0, new Reference($userProvider))
-            ;
+            ->replaceArgument(2, new Reference('security.user_checker.'.$id))
+        ;
 
         $listenerId = 'security.authentication.listener.fos_oauth_server.'.$id;
         $container->setDefinition($listenerId, new ChildDefinition('fos_oauth_server.security.authentication.listener'));
 
-        return array($providerId, $listenerId, 'fos_oauth_server.security.entry_point');
+        return [$providerId, $listenerId, 'fos_oauth_server.security.entry_point'];
     }
 
     /**

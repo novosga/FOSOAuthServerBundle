@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -27,12 +29,37 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('fos_oauth_server');
+        $treeBuilder = new TreeBuilder('fos_oauth_server');
+        $rootNode = $treeBuilder->getRootNode();
 
-        $supportedDrivers = array('orm', 'mongodb', 'propel');
+        $supportedDrivers = ['orm', 'mongodb', 'propel', 'custom'];
 
         $rootNode
+            ->validate()
+                ->always(function ($v) {
+                    if ('custom' !== $v['db_driver']) {
+                        return $v;
+                    }
+
+                    if (empty($v['service']['client_manager']) || $v['service']['client_manager'] === 'fos_oauth_server.client_manager.default') {
+                        throw new \InvalidArgumentException('The service client_manager must be set explicitly for custom db_driver.');
+                    }
+
+                    if (empty($v['service']['access_token_manager']) || $v['service']['access_token_manager'] === 'fos_oauth_server.access_token_manager.default') {
+                        throw new \InvalidArgumentException('The service access_token_manager must be set explicitly for custom db_driver.');
+                    }
+
+                    if (empty($v['service']['refresh_token_manager']) || $v['service']['refresh_token_manager'] === 'fos_oauth_server.refresh_token_manager.default') {
+                        throw new \InvalidArgumentException('The service refresh_token_manager must be set explicitly for custom db_driver.');
+                    }
+
+                    if (empty($v['service']['auth_code_manager']) || $v['service']['auth_code_manager'] === 'fos_oauth_server.auth_code_manager.default') {
+                        throw new \InvalidArgumentException('The service auth_code_manager must be set explicitly for custom db_driver.');
+                    }
+
+                    return $v;
+                })
+            ->end()
             ->children()
                 ->scalarNode('db_driver')
                     ->validate()
@@ -47,11 +74,11 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('refresh_token_class')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('auth_code_class')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('model_manager_name')->defaultNull()->end()
-            ->end();
+            ->end()
+        ;
 
         $this->addAuthorizeSection($rootNode);
         $this->addServiceSection($rootNode);
-        $this->addTemplateSection($rootNode);
 
         return $treeBuilder;
     }
@@ -72,13 +99,14 @@ class Configuration implements ConfigurationInterface
                                 ->scalarNode('name')->defaultValue('fos_oauth_server_authorize_form')->cannotBeEmpty()->end()
                                 ->arrayNode('validation_groups')
                                     ->prototype('scalar')->end()
-                                    ->defaultValue(array('Authorize', 'Default'))
+                                    ->defaultValue(['Authorize', 'Default'])
                                 ->end()
                             ->end()
                         ->end()
                     ->end()
                 ->end()
-            ->end();
+            ->end()
+        ;
     }
 
     private function addServiceSection(ArrayNodeDefinition $node)
@@ -97,25 +125,13 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('auth_code_manager')->defaultValue('fos_oauth_server.auth_code_manager.default')->end()
                             ->arrayNode('options')
                                 ->useAttributeAsKey('key')
-                                ->treatNullLike(array())
-                                ->prototype('scalar')->end()
+                                ->treatNullLike([])
+                                ->prototype('variable')->end()
                             ->end()
                         ->end()
                     ->end()
                 ->end()
-            ->end();
-    }
-
-    private function addTemplateSection(ArrayNodeDefinition $node)
-    {
-        $node
-            ->children()
-                ->arrayNode('template')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->scalarNode('engine')->defaultValue('twig')->end()
-                    ->end()
-                ->end()
-            ->end();
+            ->end()
+        ;
     }
 }

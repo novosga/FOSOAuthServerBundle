@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -13,24 +15,33 @@ namespace FOS\OAuthServerBundle\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class TestCase extends WebTestCase
 {
-    protected static function createKernel(array $options = array())
-    {
-        $env = @$options['env'] ?: 'test';
+    /**
+     * @var KernelInterface|null
+     */
+    protected static $kernel;
 
-        return new AppKernel($env, true);
-    }
-
-    protected function setUp()
+    protected function setUp(): void
     {
         $fs = new Filesystem();
         $fs->remove(sys_get_temp_dir().'/FOSOAuthServerBundle/');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         static::$kernel = null;
+    }
+
+    /**
+     * @param array<mixed> $options
+     */
+    protected static function createKernel(array $options = [])
+    {
+        $env = @$options['env'] ?: 'test';
+
+        return new AppKernel($env, true);
     }
 }

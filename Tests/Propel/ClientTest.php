@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -16,7 +18,7 @@ use OAuth2\OAuth2;
 
 class ClientTest extends PropelTestCase
 {
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $client = new Client();
 
@@ -25,10 +27,10 @@ class ClientTest extends PropelTestCase
 
         $types = $client->getAllowedGrantTypes();
         $this->assertCount(1, $types);
-        $this->assertEquals(OAuth2::GRANT_TYPE_AUTH_CODE, $types[0]);
+        $this->assertSame(OAuth2::GRANT_TYPE_AUTH_CODE, $types[0]);
     }
 
-    public function testCheckSecretWithInvalidArgument()
+    public function testCheckSecretWithInvalidArgument(): void
     {
         $client = new Client();
 
@@ -37,7 +39,7 @@ class ClientTest extends PropelTestCase
         $this->assertFalse($client->checkSecret(null));
     }
 
-    public function testCheckSecret()
+    public function testCheckSecret(): void
     {
         $client = new Client();
         $client->setSecret('foo');

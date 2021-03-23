@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -12,8 +14,8 @@
 namespace FOS\OAuthServerBundle\Tests\Propel;
 
 use FOS\OAuthServerBundle\Propel\Client;
-use FOS\OAuthServerBundle\Propel\ClientQuery;
 use FOS\OAuthServerBundle\Propel\ClientManager;
+use FOS\OAuthServerBundle\Propel\ClientQuery;
 
 class ClientManagerTest extends PropelTestCase
 {
@@ -21,7 +23,7 @@ class ClientManagerTest extends PropelTestCase
 
     protected $manager;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -29,65 +31,73 @@ class ClientManagerTest extends PropelTestCase
         ClientQuery::create()->deleteAll();
     }
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
-        $this->assertEquals(self::CLIENT_CLASS, $this->manager->getClass());
+        $this->assertSame(self::CLIENT_CLASS, $this->manager->getClass());
     }
 
-    public function testCreateClass()
+    public function testCreateClass(): void
     {
         $this->assertInstanceOf(self::CLIENT_CLASS, $this->manager->createClient());
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
-        $client = $this->getMock('FOS\OAuthServerBundle\Propel\Client');
+        $client = $this->getMockBuilder('FOS\OAuthServerBundle\Propel\Client')
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $client
             ->expects($this->once())
-            ->method('save');
+            ->method('save')
+        ;
 
         $this->manager->updateClient($client);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
-        $client = $this->getMock('FOS\OAuthServerBundle\Propel\Client');
+        $client = $this->getMockBuilder('FOS\OAuthServerBundle\Propel\Client')
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $client
             ->expects($this->once())
-            ->method('delete');
+            ->method('delete')
+        ;
 
         $this->manager->deleteClient($client);
     }
 
-    public function testFindClientReturnsNullIfNotFound()
+    public function testFindClientReturnsNullIfNotFound(): void
     {
-        $client = $this->manager->findClientBy(array('id' => '1', 'randomId' => '2345'));
+        $client = $this->manager->findClientBy(['id' => '1', 'randomId' => '2345']);
 
         $this->assertNull($client);
     }
 
-    public function testFindClientWithInvalidCriteria()
+    public function testFindClientWithInvalidCriteria(): void
     {
-        $client = $this->manager->findClientBy(array('randomId' => '2345'));
+        $client = $this->manager->findClientBy(['randomId' => '2345']);
         $this->assertNull($client);
 
-        $client = $this->manager->findClientBy(array('id' => '2345'));
+        $client = $this->manager->findClientBy(['id' => '2345']);
         $this->assertNull($client);
 
-        $client = $this->manager->findClientBy(array('foo' => '2345'));
+        $client = $this->manager->findClientBy(['foo' => '2345']);
         $this->assertNull($client);
     }
 
-    public function testFindClient()
+    public function testFindClient(): void
     {
         $client = $this->createClient('2345');
-        $return = $this->manager->findClientBy(array('id' => '1', 'randomId' => '2345'));
+        $return = $this->manager->findClientBy(['id' => '1', 'randomId' => '2345']);
 
         $this->assertNotNull($return);
         $this->assertSame($client, $return);
     }
 
-    public function testFindClientByPublicId()
+    public function testFindClientByPublicId(): void
     {
         $client = $this->createClient('12345');
         $return = $this->manager->findClientByPublicId('1_12345');
@@ -96,14 +106,14 @@ class ClientManagerTest extends PropelTestCase
         $this->assertSame($client, $return);
     }
 
-    public function testFindClientByPublicIdReturnsNullIfNotFound()
+    public function testFindClientByPublicIdReturnsNullIfNotFound(): void
     {
         $return = $this->manager->findClientByPublicId('1_12345');
 
         $this->assertNull($return);
     }
 
-    public function testFindClientByPublicIdReturnsNullIfInvalidPublicId()
+    public function testFindClientByPublicIdReturnsNullIfInvalidPublicId(): void
     {
         $return = $this->manager->findClientByPublicId('1');
         $this->assertNull($return);
@@ -111,15 +121,16 @@ class ClientManagerTest extends PropelTestCase
         $return = $this->manager->findClientByPublicId('');
         $this->assertNull($return);
 
-        $return = $this->manager->findClientByPublicId(null);
-        $this->assertNull($return);
+        // invalid type
+        // $return = $this->manager->findClientByPublicId(null);
+        // $this->assertNull($return);
     }
 
     protected function createClient($randomId)
     {
         $client = new Client();
         $client->setRandomId($randomId);
-        $client->setRedirectUris(array('foo'));
+        $client->setRedirectUris(['foo']);
         $client->save();
 
         return $client;

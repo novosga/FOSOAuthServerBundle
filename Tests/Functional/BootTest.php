@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -15,19 +17,29 @@ class BootTest extends TestCase
 {
     /**
      * @dataProvider getTestBootData
+     *
+     * @param string $env
      */
-    public function testBoot($env)
+    public function testBoot($env): void
     {
-        $this->markTestIncomplete('Issue with Stopwatch component');
+        try {
+            $kernel = static::createKernel(['env' => $env]);
+            $kernel->boot();
 
-        $kernel = $this->createKernel(array('env' => $env));
-        $kernel->boot();
+            // no exceptions were thrown
+            self::assertTrue(true);
+        } catch (\Exception $exception) {
+            $this->fail($exception->getMessage());
+        }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getTestBootData()
     {
-        return array(
-            array('orm'),
-        );
+        return [
+            ['orm'],
+        ];
     }
 }

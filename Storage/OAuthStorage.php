@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -12,25 +14,25 @@
 namespace FOS\OAuthServerBundle\Storage;
 
 use FOS\OAuthServerBundle\Model\AccessTokenManagerInterface;
-use FOS\OAuthServerBundle\Model\RefreshTokenManagerInterface;
 use FOS\OAuthServerBundle\Model\AuthCodeManagerInterface;
-use FOS\OAuthServerBundle\Model\ClientManagerInterface;
 use FOS\OAuthServerBundle\Model\ClientInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use FOS\OAuthServerBundle\Model\ClientManagerInterface;
+use FOS\OAuthServerBundle\Model\RefreshTokenManagerInterface;
+use OAuth2\IOAuth2GrantClient;
+use OAuth2\IOAuth2GrantCode;
+use OAuth2\IOAuth2GrantExtension;
+use OAuth2\IOAuth2GrantImplicit;
+use OAuth2\IOAuth2GrantUser;
+use OAuth2\IOAuth2RefreshTokens;
+use OAuth2\Model\IOAuth2Client;
 use OAuth2\OAuth2;
 use OAuth2\OAuth2ServerException;
-use OAuth2\IOAuth2RefreshTokens;
-use OAuth2\IOAuth2GrantUser;
-use OAuth2\IOAuth2GrantCode;
-use OAuth2\IOAuth2GrantImplicit;
-use OAuth2\IOAuth2GrantClient;
-use OAuth2\IOAuth2GrantExtension;
-use OAuth2\Model\IOAuth2Client;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2GrantCode, IOAuth2GrantImplicit,
-    IOAuth2GrantClient, IOAuth2GrantExtension, GrantExtensionDispatcherInterface
+class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2GrantCode, IOAuth2GrantImplicit, IOAuth2GrantClient, IOAuth2GrantExtension, GrantExtensionDispatcherInterface
 {
     /**
      * @var ClientManagerInterface
@@ -67,14 +69,6 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
      */
     protected $grantExtensions;
 
-    /**
-     * @param ClientManagerInterface       $clientManager
-     * @param AccessTokenManagerInterface  $accessTokenManager
-     * @param RefreshTokenManagerInterface $refreshTokenManager
-     * @param AuthCodeManagerInterface     $authCodeManager
-     * @param null|UserProviderInterface   $userProvider
-     * @param null|EncoderFactoryInterface $encoderFactory
-     */
     public function __construct(ClientManagerInterface $clientManager, AccessTokenManagerInterface $accessTokenManager,
         RefreshTokenManagerInterface $refreshTokenManager, AuthCodeManagerInterface $authCodeManager,
         UserProviderInterface $userProvider = null, EncoderFactoryInterface $encoderFactory = null)
@@ -86,7 +80,7 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
         $this->userProvider = $userProvider;
         $this->encoderFactory = $encoderFactory;
 
-        $this->grantExtensions = array();
+        $this->grantExtensions = [];
     }
 
     /**
@@ -163,14 +157,11 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
             return false;
         }
 
-        if (null !== $user) {
-            $encoder = $this->encoderFactory->getEncoder($user);
-
-            if ($encoder->isPasswordValid($user->getPassword(), $password, $user->getSalt())) {
-                return array(
-                    'data' => $user,
-                );
-            }
+        $encoder = $this->encoderFactory->getEncoder($user);
+        if ($encoder->isPasswordValid($user->getPassword(), $password, $user->getSalt())) {
+            return [
+                'data' => $user,
+            ];
         }
 
         return false;
@@ -255,7 +246,7 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
     public function checkGrantExtension(IOAuth2Client $client, $uri, array $inputData, array $authHeaders)
     {
         if (!isset($this->grantExtensions[$uri])) {
-            throw new OAuth2ServerException(OAuth2::HTTP_BAD_REQUEST, OAuth2::ERROR_UNSUPPORTED_GRANT_TYPE);
+            throw new OAuth2ServerException(Response::HTTP_BAD_REQUEST, OAuth2::ERROR_UNSUPPORTED_GRANT_TYPE);
         }
 
         $grantExtension = $this->grantExtensions[$uri];

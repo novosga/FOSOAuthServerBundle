@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -24,22 +26,18 @@ interface ClientManagerInterface
     public function getClass();
 
     /**
-     * @return ClientInterface
+     * @return ClientInterface|null
      */
     public function findClientBy(array $criteria);
 
     /**
-     * @return ClientInterface
+     * @param mixed $publicId
+     *
+     * @return ClientInterface|null
      */
     public function findClientByPublicId($publicId);
 
-    /**
-     * @param ClientInterface
-     */
     public function updateClient(ClientInterface $client);
 
-    /**
-     * @param ClientInterface
-     */
     public function deleteClient(ClientInterface $client);
 }

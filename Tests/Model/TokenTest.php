@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -15,6 +17,8 @@ use FOS\OAuthServerBundle\Model\Token;
 use FOS\OAuthServerBundle\Tests\TestCase;
 
 /**
+ * @group time-sensitive
+ *
  * If you update the following class, please don't forget
  * to update: FOS\OAuthServerBundle\Tests\Propel\TokenTest.
  */
@@ -22,8 +26,11 @@ class TokenTest extends TestCase
 {
     /**
      * @dataProvider getTestHasExpiredData
+     *
+     * @param mixed $expiresAt
+     * @param mixed $expect
      */
-    public function testHasExpired($expiresAt, $expect)
+    public function testHasExpired($expiresAt, $expect): void
     {
         $token = new Token();
         $token->setExpiresAt($expiresAt);
@@ -31,27 +38,30 @@ class TokenTest extends TestCase
         $this->assertSame($expect, $token->hasExpired());
     }
 
+    /**
+     * @return array<mixed>
+     */
     public static function getTestHasExpiredData()
     {
-        return array(
-            array(time() + 60, false),
-            array(time() - 60, true),
-            array(null, false),
-        );
+        return [
+            [time() + 60, false],
+            [time() - 60, true],
+            [null, false],
+        ];
     }
 
-    public function testExpiresIn()
+    public function testExpiresIn(): void
     {
         $token = new Token();
 
-        $this->assertEquals(PHP_INT_MAX, $token->getExpiresIn());
+        $this->assertSame(PHP_INT_MAX, $token->getExpiresIn());
     }
 
-    public function testExpiresInWithExpiresAt()
+    public function testExpiresInWithExpiresAt(): void
     {
         $token = new Token();
         $token->setExpiresAt(time() + 60);
 
-        $this->assertEquals(60, $token->getExpiresIn());
+        $this->assertSame(60, $token->getExpiresIn());
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -15,13 +17,18 @@ use FOS\OAuthServerBundle\Propel\RefreshToken as Token;
 use FOS\OAuthServerBundle\Propel\RefreshTokenQuery as TokenQuery;
 use FOS\OAuthServerBundle\Propel\TokenManager;
 
+/**
+ * @group time-sensitive
+ *
+ * Class TokenManagerTest
+ */
 class TokenManagerTest extends PropelTestCase
 {
     const TOKEN_CLASS = 'FOS\OAuthServerBundle\Propel\RefreshToken';
 
     protected $manager;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -29,66 +36,74 @@ class TokenManagerTest extends PropelTestCase
         TokenQuery::create()->deleteAll();
     }
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
-        $this->assertEquals(self::TOKEN_CLASS, $this->manager->getClass());
+        $this->assertSame(self::TOKEN_CLASS, $this->manager->getClass());
     }
 
-    public function testCreateClass()
+    public function testCreateClass(): void
     {
         $this->manager = new TokenManager('Token');
         $this->assertInstanceOf('Token', $this->manager->createToken());
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
-        $token = $this->getMock('FOS\OAuthServerBundle\Propel\Token');
+        $token = $this->getMockBuilder('FOS\OAuthServerBundle\Propel\Token')
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $token
             ->expects($this->once())
-            ->method('save');
+            ->method('save')
+        ;
 
         $this->manager->updateToken($token);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
-        $token = $this->getMock('FOS\OAuthServerBundle\Propel\Token');
+        $token = $this->getMockBuilder('FOS\OAuthServerBundle\Propel\Token')
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $token
             ->expects($this->once())
-            ->method('delete');
+            ->method('delete')
+        ;
 
         $this->manager->deleteToken($token);
     }
 
-    public function testFindTokenReturnsNullIfNotFound()
+    public function testFindTokenReturnsNullIfNotFound(): void
     {
-        $token = $this->manager->findTokenBy(array('token' => '12345'));
+        $token = $this->manager->findTokenBy(['token' => '12345']);
 
         $this->assertNull($token);
     }
 
-    public function testFindTokenWithInvalidData()
+    public function testFindTokenWithInvalidData(): void
     {
-        $token = $this->manager->findTokenBy(array('foo' => '12345'));
+        $token = $this->manager->findTokenBy(['foo' => '12345']);
         $this->assertNull($token);
 
-        $token = $this->manager->findTokenBy(array());
+        $token = $this->manager->findTokenBy([]);
         $this->assertNull($token);
 
-        $token = $this->manager->findTokenBy(array('token'));
+        $token = $this->manager->findTokenBy(['token']);
         $this->assertNull($token);
     }
 
-    public function testFindToken()
+    public function testFindToken(): void
     {
         $token = $this->createToken('12345');
-        $return = $this->manager->findTokenBy(array('token' => '12345'));
+        $return = $this->manager->findTokenBy(['token' => '12345']);
 
         $this->assertNotNull($return);
         $this->assertSame($token, $return);
     }
 
-    public function testFindTokenByToken()
+    public function testFindTokenByToken(): void
     {
         $token = $this->createToken('12345');
         $return = $this->manager->findTokenByToken('12345');
@@ -97,23 +112,23 @@ class TokenManagerTest extends PropelTestCase
         $this->assertSame($token, $return);
     }
 
-    public function testFindTokenByTokenReturnsNullIfNotFound()
+    public function testFindTokenByTokenReturnsNullIfNotFound(): void
     {
         $return = $this->manager->findTokenByToken('12345');
 
         $this->assertNull($return);
     }
 
-    public function testDeleteExpired()
+    public function testDeleteExpired(): void
     {
         $a1 = $this->createToken('12345', time() + 100);
         $a2 = $this->createToken('67890', time() - 100);
 
-        $this->assertEquals(2, TokenQuery::create()->count());
+        $this->assertSame(2, TokenQuery::create()->count());
 
         $nb = $this->manager->deleteExpired();
 
-        $this->assertEquals(1, $nb);
+        $this->assertSame(1, $nb);
         $this->assertTrue($a1->equals(TokenQuery::create()->findOne()));
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -46,16 +48,12 @@ class Authorize
      */
     public $scope;
 
-    /**
-     * @param bool  $accepted
-     * @param array $query
-     */
-    public function __construct($accepted, array $query = array())
+    public function __construct(bool $accepted, array $query = [])
     {
         foreach ($query as $key => $value) {
             $this->{$key} = $value;
         }
 
-        $this->accepted = (bool) $accepted;
+        $this->accepted = $accepted;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -30,8 +32,6 @@ interface TokenManagerInterface
     /**
      * Retrieve a token using a set of criteria.
      *
-     * @param array $criteria
-     *
      * @return TokenInterface|null
      */
     public function findTokenBy(array $criteria);
@@ -39,7 +39,7 @@ interface TokenManagerInterface
     /**
      * Retrieve a token (object) by its token string.
      *
-     * @param string $token A token.
+     * @param string $token a token
      *
      * @return TokenInterface|null
      */
@@ -48,21 +48,21 @@ interface TokenManagerInterface
     /**
      * Save or update a given token.
      *
-     * @param TokenInterface $token The token to save or update.
+     * @param TokenInterface $token the token to save or update
      */
     public function updateToken(TokenInterface $token);
 
     /**
      * Delete a given token.
      *
-     * @param TokenInterface $token The token to delete.
+     * @param TokenInterface $token the token to delete
      */
     public function deleteToken(TokenInterface $token);
 
     /**
      * Delete expired tokens.
      *
-     * @return int The number of tokens deleted.
+     * @return int the number of tokens deleted
      */
     public function deleteExpired();
 }

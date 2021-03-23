@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -15,7 +17,7 @@ use FOS\OAuthServerBundle\Tests\TestCase;
 
 class PropelTestCase extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         if (!class_exists('\Propel')) {
             $this->markTestSkipped('Propel is not installed.');

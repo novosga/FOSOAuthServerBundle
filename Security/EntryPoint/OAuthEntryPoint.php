@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the FOSOAuthServerBundle package.
  *
@@ -11,11 +13,12 @@
 
 namespace FOS\OAuthServerBundle\Security\EntryPoint;
 
-use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\HttpFoundation\Request;
-use OAuth2\OAuth2AuthenticateException;
 use OAuth2\OAuth2;
+use OAuth2\OAuth2AuthenticateException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
 class OAuthEntryPoint implements AuthenticationEntryPointInterface
 {
@@ -29,7 +32,7 @@ class OAuthEntryPoint implements AuthenticationEntryPointInterface
     public function start(Request $request, AuthenticationException $authException = null)
     {
         $exception = new OAuth2AuthenticateException(
-            OAuth2::HTTP_UNAUTHORIZED,
+            Response::HTTP_UNAUTHORIZED,
             OAuth2::TOKEN_TYPE_BEARER,
             $this->serverService->getVariable(OAuth2::CONFIG_WWW_REALM),
             'access_denied',

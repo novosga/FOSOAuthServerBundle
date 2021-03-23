@@ -3,7 +3,7 @@ Getting Started With FOSOAuthServerBundle
 
 ## Prerequisites
 
-This version of the bundle requires Symfony 2.1.
+This version of the bundle requires Symfony 2.8.
 If you are using Symfony 2.0.x, please use the 1.1.1 release of the bundle (or lower), and follow
 [this documentation](https://github.com/FriendsOfSymfony/FOSOAuthServerBundle/blob/1.1.1/README.md).
 
@@ -158,6 +158,7 @@ class AccessToken extends BaseAccessToken
 
     /**
      * @ORM\ManyToOne(targetEntity="Your\Own\Entity\User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $user;
 }
@@ -192,6 +193,7 @@ class RefreshToken extends BaseRefreshToken
 
     /**
      * @ORM\ManyToOne(targetEntity="Your\Own\Entity\User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $user;
 }
@@ -226,6 +228,7 @@ class AuthCode extends BaseAuthCode
 
     /**
      * @ORM\ManyToOne(targetEntity="Your\Own\Entity\User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $user;
 }
@@ -566,6 +569,16 @@ fos_oauth_server:
 
 ## Creating A Client
 
+### Console Command
+
+The most convenient way to create a client is to use the console command.
+
+    $ php app/console fos:oauth-server:create-client --redirect-uri="..." --grant-type="..."
+    
+Note: you can use `--redirect-uri` and `--grant-type` multiple times to add additional values.
+
+### Programatically
+
 Before you can generate tokens, you need to create a Client using the ClientManager.
 
 ``` php
@@ -609,3 +622,5 @@ The `authorize` endpoint is at `/oauth/v2/auth` by default (see `Resources/confi
 [The OAuthEvent class](the_oauth_event_class.md)
 
 [Adding Grant Extensions](adding_grant_extensions.md)
+
+[Custom DB Driver](custom_db_driver.md)
